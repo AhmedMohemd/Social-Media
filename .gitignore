@@ -1,0 +1,4 @@
+/code/.env.development
+/code/.env.production
+/code/node_modules/
+/code/src/config/social-media-app-e4a23-firebase-adminsdk-fbsvc-235c4859ef.json
