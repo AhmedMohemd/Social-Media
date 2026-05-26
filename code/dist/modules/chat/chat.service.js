@@ -20,6 +20,20 @@ class ChatService {
     sayHi = () => {
         return "Done";
     };
+    async getMyChats(user) {
+        const chats = await this.chatRepository.find({
+            filter: {
+                participants: { $in: [user._id] },
+            },
+            options: {
+                populate: [
+                    { path: "participants", select: "firstName lastName profilePicture slug" },
+                    { path: "createdBy", select: "firstName lastName profilePicture" },
+                ],
+            },
+        });
+        return chats.map(c => c.toJSON());
+    }
     async getChat(participantId, { page, size }, user) {
         const chat = await this.chatRepository.findOneChat({
             filter: {

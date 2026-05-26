@@ -12,7 +12,14 @@ router.get(
         return successResponse({ res, data: { chat } })
     }
 )
-//===============================
+router.get(
+    "/my-chats",
+    authentication(),
+    async (req: Request, res: Response, next: NextFunction) => {
+        const chats = await chatService.getMyChats(req.user);
+        return successResponse({ res, data: { chats } });
+    }
+);
 router.post(
     "/",
     authentication(),
@@ -22,10 +29,8 @@ router.post(
             req.user
         );
         return successResponse({ res, message: "Message sent successfully" });
-
     }
 );
-
 router.get(
     "/group/:groupId",
     authentication(),
@@ -43,7 +48,6 @@ router.post(
         return successResponse({ res, data: { chat } })
     }
 )
-//===============================
 router.post(
     "/group/:groupId/message",
     authentication(),

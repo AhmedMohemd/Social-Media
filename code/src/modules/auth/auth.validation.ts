@@ -23,6 +23,7 @@ export const signup = {
       phone: generalValidationFields.phone.optional(),
       confirmPassword: generalValidationFields.confirmPassword,
       gender: generalValidationFields.gender,
+      DOB: generalValidationFields.DOB,
     })
     .refine(
       (data) => {

@@ -47,7 +47,7 @@ postSchema.virtual("comments", {
   localField: "_id",
   foreignField: "postId",
   ref: "Comment",
-  justOne: true,
+  justOne: false,
 });
 postSchema.pre(["findOne", "find", "countDocuments"], function () {
   const query = this.getQuery();

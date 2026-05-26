@@ -2,6 +2,7 @@ import { Server as HttpServerType } from "node:http"
 import { Server } from "socket.io"
 import { IAuthSocket } from "../../common/types/express.types"
 import { redisService, RedisService, TokenService } from "../../common/services"
+import { chatGateway } from "../chat"
 export class RealtimeGateway {
     private io!: Server;
     private tokenService: TokenService
@@ -12,9 +13,12 @@ export class RealtimeGateway {
     }
     authentication = async (socket: IAuthSocket, next: any) => {
         try {
-            const { user, decoded } = await this.tokenService.decodeToken({ token: socket.handshake.auth.authorization || socket.handshake.headers.authorization })
+            const { user, decoded } = await this.tokenService.decodeToken({
+                token: socket.handshake.auth.authorization || socket.handshake.headers.authorization
+            })
             socket.data = { user, decoded }
             await this.redisService.addSocket(user._id, socket.id)
+            // socket.join(`user:${user._id}`)
             next()
         } catch (error) {
             next(error)
@@ -26,6 +30,7 @@ export class RealtimeGateway {
         })
         this.io.use(this.authentication)
         this.io.on("connection", async (socket: IAuthSocket) => {
+            chatGateway.registerEvents(socket, this.io)
             socket.on("disconnect", async () => {
                 await this.redisService.removeSocket(socket.data.user._id, socket.id);
                 const connections = await this.redisService.getSockets(socket.data.user._id) || []

@@ -20,7 +20,8 @@ const userSchema = new Schema<IUser>(
     phone: { type: String },
     profilePicture: { type: String },
     profileCoverPictures: { type: [String] },
-    friends: [{ type: Types.ObjectId, ref: "users" }],
+    // //friends: [{ type: Types.ObjectId, ref: "users" }],
+    friends: [{ type: Types.ObjectId, ref: "User" }],
     gender: {
       type: Number,
       enum: GenderEnum,

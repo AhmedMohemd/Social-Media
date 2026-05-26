@@ -212,7 +212,7 @@ class AuthenticationService {
         if (!account) {
             throw new exceptions_1.NotFoundException("Account not found");
         }
-        account.password = await (0, security_1.generateHash)({ plaintext: password });
+        account.password = password;
         await account.save();
         await this.redis.deleteKey(await this.redis.keys(this.redis.otpKey({ email, subject: enums_1.EmailEnum.FORGOT_PASSWORD })));
         return;
@@ -267,6 +267,7 @@ class AuthenticationService {
                 profilePicture: payload.picture,
                 confirmEmail: new Date(),
                 provider: enums_1.ProviderEnum.GOOGLE,
+                slug: `${payload.given_name}-${payload.family_name}`.replaceAll(/\s+/g, "-").toLowerCase(),
             },
         });
         return {

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.realtimeGateway = exports.RealtimeGateway = void 0;
 const socket_io_1 = require("socket.io");
 const services_1 = require("../../common/services");
+const chat_1 = require("../chat");
 class RealtimeGateway {
     io;
     tokenService;
@@ -13,7 +14,9 @@ class RealtimeGateway {
     }
     authentication = async (socket, next) => {
         try {
-            const { user, decoded } = await this.tokenService.decodeToken({ token: socket.handshake.auth.authorization || socket.handshake.headers.authorization });
+            const { user, decoded } = await this.tokenService.decodeToken({
+                token: socket.handshake.auth.authorization || socket.handshake.headers.authorization
+            });
             socket.data = { user, decoded };
             await this.redisService.addSocket(user._id, socket.id);
             next();
@@ -28,6 +31,7 @@ class RealtimeGateway {
         });
         this.io.use(this.authentication);
         this.io.on("connection", async (socket) => {
+            chat_1.chatGateway.registerEvents(socket, this.io);
             socket.on("disconnect", async () => {
                 await this.redisService.removeSocket(socket.data.user._id, socket.id);
                 const connections = await this.redisService.getSockets(socket.data.user._id) || [];

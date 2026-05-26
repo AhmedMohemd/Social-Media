@@ -10,6 +10,10 @@ router.get("/", (0, middleware_1.authentication)(), async (req, res, next) => {
     const chat = await chat_service_1.chatService.getChat(req.params.userId, req.query, req.user);
     return (0, response_1.successResponse)({ res, data: { chat } });
 });
+router.get("/my-chats", (0, middleware_1.authentication)(), async (req, res, next) => {
+    const chats = await chat_service_1.chatService.getMyChats(req.user);
+    return (0, response_1.successResponse)({ res, data: { chats } });
+});
 router.post("/", (0, middleware_1.authentication)(), async (req, res, next) => {
     await chat_service_1.chatService.sendMessage({ content: req.body.content, sendTo: req.body.sendTo }, req.user);
     return (0, response_1.successResponse)({ res, message: "Message sent successfully" });

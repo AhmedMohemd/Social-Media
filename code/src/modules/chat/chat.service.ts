@@ -20,6 +20,21 @@ export class ChatService {
     sayHi = () => {
         return "Done";
     };
+    async getMyChats(user: HydratedDocument<IUser>): Promise<IChat[]> {
+        const chats = await this.chatRepository.find({
+            filter: {
+                participants: { $in: [user._id] },
+            },
+            options: {
+                populate: [
+                    { path: "participants", select: "firstName lastName profilePicture slug" },
+                    { path: "createdBy", select: "firstName lastName profilePicture" },
+                    // { path: "messages" },                  
+                ],
+            },
+        });
+        return chats.map(c => c.toJSON());
+    }
     async getChat(
         participantId: string,
         { page, size }: { page?: string; size?: string },

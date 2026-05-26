@@ -37,13 +37,13 @@ exports.chatEvent = exports.ChatEvent = void 0;
 const chat_service_1 = require("../chat.service");
 const validators = __importStar(require("../chat.validation"));
 const validation_middleware_1 = require("../../../middleware/validation.middleware");
-const redis_service_1 = require("../../../common/services/redis.service");
+const services_1 = require("../../../common/services");
 class ChatEvent {
     chatService;
     redisService;
     constructor() {
         this.chatService = chat_service_1.chatService;
-        this.redisService = redis_service_1.redisService;
+        this.redisService = services_1.redisService;
     }
     sayHi = (socket) => {
         return socket.on("sayHi", async (data) => {
@@ -63,10 +63,16 @@ class ChatEvent {
             try {
                 console.log({ content, sendTo });
                 await this.chatService.sendMessage({ content, sendTo }, socket.data.user);
-                io.to(await this.redisService.getSockets(socket.data.user._id)).emit("successMessage", { content, sendTo });
+                socket.emit("successMessage", { content, sendTo });
                 const receiverSocketIds = await this.redisService.getSockets(sendTo);
+                console.log("sender id:", socket.data.user._id);
+                console.log("sendTo:", sendTo);
+                console.log("receiverSocketIds:", receiverSocketIds);
                 if (receiverSocketIds.length) {
-                    socket.to(receiverSocketIds).emit("newMessage", { content, from: socket.data.user });
+                    socket.to(receiverSocketIds).emit("newMessage", {
+                        content,
+                        from: socket.data.user,
+                    });
                 }
             }
             catch (error) {
@@ -79,8 +85,12 @@ class ChatEvent {
             try {
                 console.log({ content, groupId });
                 const roomId = await this.chatService.sendGroupMessage({ content, groupId }, socket.data.user);
-                io.to(await this.redisService.getSockets(socket.data.user._id)).emit("successMessage", { content, sendTo: groupId });
-                socket.to(roomId).emit("newMessage", { content, groupId });
+                socket.emit("successMessage", { content, sendTo: groupId });
+                socket.to(roomId).emit("newMessage", {
+                    content,
+                    groupId,
+                    from: socket.data.user,
+                });
             }
             catch (error) {
                 console.log({ error });

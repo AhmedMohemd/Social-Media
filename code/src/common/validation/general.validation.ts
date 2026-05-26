@@ -20,6 +20,7 @@ export const generalValidationFields = {
     .max(30, { error: "Username must be at most 30 characters long" }),
   confirmPassword: z.string({ error: "Confirm Password is required" }),
   phone: z.string().regex(/^(00201|\+201|01)[0|1|2|5]\d{8}$/),
+  DOB: z.coerce.date().optional(),
   gender: z
     .enum(["male", "female", "not specified"], { error: "Gender is required" })
     .optional(),

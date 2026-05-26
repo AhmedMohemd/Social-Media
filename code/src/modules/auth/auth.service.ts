@@ -268,7 +268,7 @@ export class AuthenticationService {
     if (!account) {
       throw new NotFoundException("Account not found");
     }
-    account.password = await generateHash({ plaintext: password });
+    account.password = password;
     await account.save();
     await this.redis.deleteKey(
       await this.redis.keys(
@@ -329,6 +329,8 @@ export class AuthenticationService {
         profilePicture: payload.picture as string,
         confirmEmail: new Date(),
         provider: ProviderEnum.GOOGLE,
+        slug: `${payload.given_name}-${payload.family_name}`.replaceAll(/\s+/g, "-").toLowerCase(),
+
       },
     });
     return {

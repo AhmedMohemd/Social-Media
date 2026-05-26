@@ -26,6 +26,7 @@ exports.signup = {
         phone: validation_1.generalValidationFields.phone.optional(),
         confirmPassword: validation_1.generalValidationFields.confirmPassword,
         gender: validation_1.generalValidationFields.gender,
+        DOB: validation_1.generalValidationFields.DOB,
     })
         .refine((data) => {
         return data.password === data.confirmPassword;

@@ -53,7 +53,7 @@ storySchema.pre(["findOne", "find", "countDocuments"], function () {
     this.setQuery({
       ...query,
       deletedAt: { $exists: false },
-      // expiresAt: { $gt: new Date() },
+      expiresAt: { $gt: new Date() },
     });
   }
 });
