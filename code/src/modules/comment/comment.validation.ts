@@ -100,3 +100,31 @@ export const reactCommentGQL = z.object({
   commentId: generalValidationFields.id,
   react: z.enum(["like", "love", "haha", "wow", "sad", "angry", "0"]),
 });
+export const updateComment = {
+  params: z.strictObject({
+    postId: generalValidationFields.id,
+    commentId: generalValidationFields.id,
+  }),
+  body: z
+    .strictObject({
+      content: z.string().min(1).optional(),
+      files: z
+        .array(generalValidationFields.file(fileFieldValidation.image))
+        .optional(),
+    })
+    .superRefine((args, ctx) => {
+      if (!args.content && !args.files?.length) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["content"],
+          message: "Content or file is required",
+        });
+      }
+    }),
+};
+export const deleteComment = {
+  params: z.strictObject({
+    postId: generalValidationFields.id,
+    commentId: generalValidationFields.id,
+  }),
+};

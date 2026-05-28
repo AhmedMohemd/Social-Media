@@ -36,7 +36,7 @@ const bootstrap = async (): Promise<void> => {
       res: express.Response,
       next: express.NextFunction,
     ): Promise<express.Response> => {
-      console.log({ token: req.body.token });
+      // console.log({ token: req.body.token });
 
       await notificationService.sendNotification({
         token: req.body.token,
@@ -48,7 +48,6 @@ const bootstrap = async (): Promise<void> => {
       return res.status(200).json({ message: "Landing page api" });
     },
   );
-  // =============
   app.use("/auth", authRouter);
   app.use("/user", userRouter);
   app.use("/post", postRouter);
@@ -56,7 +55,6 @@ const bootstrap = async (): Promise<void> => {
   app.use("/notification", notificationRouter);
   app.use("/story", storyRouter);
   app.use(globalErrorHandler);
-  // ============
   app.get(
     "/uploads/*path",
     async (
@@ -106,7 +104,6 @@ const bootstrap = async (): Promise<void> => {
   );
   await connectDB();
   await redisService.connect();
-  // =============
   app.get(
     "/*dummy",
     (

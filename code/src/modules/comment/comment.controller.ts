@@ -73,4 +73,30 @@ router.patch(
     return successResponse({ res, status: 200, data });
   },
 );
+router.patch(
+  "/:commentId",
+  authentication(),
+  cloudFileUpload({ validation: fileFieldValidation.image }).array("attachments", 2),
+  validation(validators.updateComment),
+  async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+    const data = await commentService.updateComment(
+      req.params as { postId: string; commentId: string },
+      { ...req.body, files: req.files },
+      req.user,
+    );
+    return successResponse({ res, status: 200, data });
+  },
+);
+router.delete(
+  "/:commentId",
+  authentication(),
+  validation(validators.deleteComment),
+  async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
+    const data = await commentService.deleteComment(
+      req.params as { postId: string; commentId: string },
+      req.user,
+    );
+    return successResponse({ res, status: 200, data });
+  },
+);
 export default router;

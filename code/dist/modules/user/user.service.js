@@ -105,7 +105,7 @@ class UserService {
         });
         if (!isMatch)
             throw new exceptions_1.BadRequestException("Old password is incorrect");
-        user.password = await (0, security_1.generateHash)({ plaintext: password });
+        user.password = password;
         user.changeCredentialsTime = new Date();
         await user.save();
         await this.redis.deleteKey(await this.redis.keys(this.redis.baseRevokeTokenKey(user._id)));

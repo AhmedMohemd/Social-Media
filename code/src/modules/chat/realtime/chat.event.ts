@@ -29,13 +29,13 @@ export class ChatEvent {
     sendMessage = (socket: IAuthSocket, io: Server) => {
         return socket.on("sendMessage", async ({ content, sendTo }: { sendTo: string, content: string }) => {
             try {
-                console.log({ content, sendTo });
+                // console.log({ content, sendTo });
                 await this.chatService.sendMessage({ content, sendTo }, socket.data.user);
                 socket.emit("successMessage", { content, sendTo });
                 const receiverSocketIds = await this.redisService.getSockets(sendTo);
-                console.log("sender id:", socket.data.user._id);
-                console.log("sendTo:", sendTo);
-                console.log("receiverSocketIds:", receiverSocketIds);
+                // console.log("sender id:", socket.data.user._id);
+                // console.log("sendTo:", sendTo);
+                // console.log("receiverSocketIds:", receiverSocketIds);
                 if (receiverSocketIds.length) {
                     socket.to(receiverSocketIds).emit("newMessage", {
                         content,
@@ -54,7 +54,7 @@ export class ChatEvent {
     sendGroupMessage = (socket: IAuthSocket, io: Server) => {
         return socket.on("sendGroupMessage", async ({ content, groupId }: { groupId: string, content: string }) => {
             try {
-                console.log({ content, groupId });
+                // console.log({ content, groupId });
                 const roomId = await this.chatService.sendGroupMessage({ content, groupId }, socket.data.user);
                 socket.emit("successMessage", { content, sendTo: groupId });
                 socket.to(roomId).emit("newMessage", {
@@ -63,7 +63,7 @@ export class ChatEvent {
                     from: socket.data.user,
                 });
             } catch (error) {
-                console.log({ error });
+                // console.log({ error });
                 socket.emit("custom_error", error);
             }
         });
@@ -73,7 +73,7 @@ export class ChatEvent {
             try {
                 socket.join(roomId);
             } catch (error) {
-                console.log({ error });
+                // console.log({ error });
                 socket.emit("custom_error", error);
             }
         });

@@ -23,7 +23,6 @@ const bootstrap = async () => {
         return res.status(200).json({ message: "Hello World" });
     });
     app.post("/send-notification", async (req, res, next) => {
-        console.log({ token: req.body.token });
         await services_1.notificationService.sendNotification({
             token: req.body.token,
             data: {

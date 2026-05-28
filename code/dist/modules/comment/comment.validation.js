@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reactCommentGQL = exports.replyOnCommentGQL = exports.createCommentGQL = exports.commentListGQL = exports.replyOnComment = exports.reactComment = exports.createComment = void 0;
+exports.deleteComment = exports.updateComment = exports.reactCommentGQL = exports.replyOnCommentGQL = exports.createCommentGQL = exports.commentListGQL = exports.replyOnComment = exports.reactComment = exports.createComment = void 0;
 const zod_1 = require("zod");
 const validation_1 = require("../../common/validation");
 const multer_1 = require("../../common/utils/multer");
@@ -103,3 +103,31 @@ exports.reactCommentGQL = zod_1.z.object({
     commentId: validation_1.generalValidationFields.id,
     react: zod_1.z.enum(["like", "love", "haha", "wow", "sad", "angry", "0"]),
 });
+exports.updateComment = {
+    params: zod_1.z.strictObject({
+        postId: validation_1.generalValidationFields.id,
+        commentId: validation_1.generalValidationFields.id,
+    }),
+    body: zod_1.z
+        .strictObject({
+        content: zod_1.z.string().min(1).optional(),
+        files: zod_1.z
+            .array(validation_1.generalValidationFields.file(multer_1.fileFieldValidation.image))
+            .optional(),
+    })
+        .superRefine((args, ctx) => {
+        if (!args.content && !args.files?.length) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["content"],
+                message: "Content or file is required",
+            });
+        }
+    }),
+};
+exports.deleteComment = {
+    params: zod_1.z.strictObject({
+        postId: validation_1.generalValidationFields.id,
+        commentId: validation_1.generalValidationFields.id,
+    }),
+};

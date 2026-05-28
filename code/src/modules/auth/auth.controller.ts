@@ -64,7 +64,7 @@ router.post(
       res: Response,
       next: NextFunction,
     ): Promise<Response> => {
-      console.log(req.body);
+      // console.log(req.body);
       const { status, credentials } = await authServics.signupWithGmail(
         req.body.idToken,
         `${req.protocol}://${req.host}`,

@@ -58,7 +58,6 @@ router.post("/resend-confirm-email", (0, middleware_1.validation)(validators.res
     await auth_service_1.default.resendConfirmEmail(req.body);
     return (0, response_1.successResponse)({ res });
 }, router.post("/signup/gmail", async (req, res, next) => {
-    console.log(req.body);
     const { status, credentials } = await auth_service_1.default.signupWithGmail(req.body.idToken, `${req.protocol}://${req.host}`);
     return (0, response_1.successResponse)({ res, status, data: { credentials } });
 }));

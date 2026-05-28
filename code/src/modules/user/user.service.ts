@@ -20,7 +20,7 @@ import {
 } from "../../common/exceptions";
 import { ChatRepository, UserRepository } from "../../DB/repository";
 import { PostRepository } from "../../DB/repository";
-import { compareHash, generateHash } from "../../common/utils/security";
+import { compareHash } from "../../common/utils/security";
 import { toObjectId } from "../../common/utils/object.Id";
 export class UserService {
   private readonly redis: RedisService;
@@ -29,7 +29,6 @@ export class UserService {
   private readonly chatRepository: ChatRepository;
   private readonly postRepository: PostRepository;
   private readonly s3: S3Service;
-
   constructor() {
     this.redis = redisService;
     this.tokenService = new TokenService();
@@ -56,7 +55,7 @@ export class UserService {
       (acc, post) => acc + (post.likes?.length || 0),
       0,
     );
-    const groups = await this.chatRepository.find({ filter: {type:ChatEnum.ovm, participants: { $in: [user._id] } } })
+    const groups = await this.chatRepository.find({ filter: { type: ChatEnum.ovm, participants: { $in: [user._id] } } })
     return {
       user: (populatedUser || user).toJSON(),
       stats: {
@@ -132,7 +131,7 @@ export class UserService {
       cipherText: user.password,
     });
     if (!isMatch) throw new BadRequestException("Old password is incorrect");
-    user.password = await generateHash({ plaintext: password });
+    user.password = password;
     user.changeCredentialsTime = new Date();
     await user.save();
     await this.redis.deleteKey(

@@ -52,4 +52,12 @@ router.patch("/:commentId/react", (0, middleware_1.authentication)(), (0, middle
     const data = await comment_service_1.commentService.reactComment(req.params, req.query, req.user);
     return (0, response_1.successResponse)({ res, status: 200, data });
 });
+router.patch("/:commentId", (0, middleware_1.authentication)(), (0, multer_1.cloudFileUpload)({ validation: multer_1.fileFieldValidation.image }).array("attachments", 2), (0, middleware_1.validation)(validators.updateComment), async (req, res, next) => {
+    const data = await comment_service_1.commentService.updateComment(req.params, { ...req.body, files: req.files }, req.user);
+    return (0, response_1.successResponse)({ res, status: 200, data });
+});
+router.delete("/:commentId", (0, middleware_1.authentication)(), (0, middleware_1.validation)(validators.deleteComment), async (req, res, next) => {
+    const data = await comment_service_1.commentService.deleteComment(req.params, req.user);
+    return (0, response_1.successResponse)({ res, status: 200, data });
+});
 exports.default = router;

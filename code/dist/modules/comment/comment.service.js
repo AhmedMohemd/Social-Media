@@ -231,6 +231,76 @@ class CommentService {
         }
         return comment.toJSON();
     }
+    async updateComment({ postId, commentId }, { content, files = [] }, user) {
+        const comment = await this.commentRepository.findOne({
+            filter: {
+                _id: commentId,
+                postId,
+                createdBy: user._id,
+            },
+        });
+        if (!comment) {
+            throw new exceptions_1.NotFoundException("Comment not found or not authorized");
+        }
+        let newAttachments = [];
+        if (files?.length) {
+            const post = await this.postRepository.findOne({ filter: { _id: postId } });
+            if (!post)
+                throw new exceptions_1.NotFoundException("Post not found");
+            newAttachments = await this.s3.uploadAssets({
+                files,
+                path: `Post/${post.folderId}`,
+            });
+        }
+        const updated = await this.commentRepository.findOneAndUpdate({
+            filter: { _id: commentId, createdBy: user._id },
+            update: {
+                ...(content ? { content } : {}),
+                ...(newAttachments.length ? { $push: { attachments: { $each: newAttachments } } } : {}),
+                updatedBy: user._id,
+            },
+        });
+        if (!updated) {
+            if (newAttachments.length) {
+                await this.s3.deleteAssets({ Keys: newAttachments.map((k) => ({ Key: k })) });
+            }
+            throw new exceptions_1.BadRequestException("Failed to update comment");
+        }
+        return updated.toJSON();
+    }
+    async deleteComment({ postId, commentId }, user) {
+        const ownerFilter = user.role === 1
+            ? { _id: commentId, postId }
+            : { _id: commentId, postId, createdBy: user._id };
+        const comment = await this.commentRepository.findOne({ filter: ownerFilter });
+        if (!comment) {
+            throw new exceptions_1.NotFoundException("Comment not found or not authorized");
+        }
+        const replies = await this.commentRepository.find({
+            filter: { commentId: comment._id },
+        });
+        for (const reply of replies) {
+            await this.commentRepository.findOneAndUpdate({
+                filter: { _id: reply._id },
+                update: { deletedAt: new Date() },
+            });
+            if (reply.attachments?.length) {
+                await this.s3.deleteAssets({
+                    Keys: reply.attachments.map((k) => ({ Key: k })),
+                });
+            }
+        }
+        await this.commentRepository.findOneAndUpdate({
+            filter: { _id: commentId },
+            update: { deletedAt: new Date() },
+        });
+        if (comment.attachments?.length) {
+            await this.s3.deleteAssets({
+                Keys: comment.attachments.map((k) => ({ Key: k })),
+            });
+        }
+        return { message: "Comment deleted successfully" };
+    }
 }
 exports.CommentService = CommentService;
 exports.commentService = new CommentService();

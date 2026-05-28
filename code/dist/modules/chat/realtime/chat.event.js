@@ -61,13 +61,9 @@ class ChatEvent {
     sendMessage = (socket, io) => {
         return socket.on("sendMessage", async ({ content, sendTo }) => {
             try {
-                console.log({ content, sendTo });
                 await this.chatService.sendMessage({ content, sendTo }, socket.data.user);
                 socket.emit("successMessage", { content, sendTo });
                 const receiverSocketIds = await this.redisService.getSockets(sendTo);
-                console.log("sender id:", socket.data.user._id);
-                console.log("sendTo:", sendTo);
-                console.log("receiverSocketIds:", receiverSocketIds);
                 if (receiverSocketIds.length) {
                     socket.to(receiverSocketIds).emit("newMessage", {
                         content,
@@ -83,7 +79,6 @@ class ChatEvent {
     sendGroupMessage = (socket, io) => {
         return socket.on("sendGroupMessage", async ({ content, groupId }) => {
             try {
-                console.log({ content, groupId });
                 const roomId = await this.chatService.sendGroupMessage({ content, groupId }, socket.data.user);
                 socket.emit("successMessage", { content, sendTo: groupId });
                 socket.to(roomId).emit("newMessage", {
@@ -93,7 +88,6 @@ class ChatEvent {
                 });
             }
             catch (error) {
-                console.log({ error });
                 socket.emit("custom_error", error);
             }
         });
@@ -104,7 +98,6 @@ class ChatEvent {
                 socket.join(roomId);
             }
             catch (error) {
-                console.log({ error });
                 socket.emit("custom_error", error);
             }
         });
